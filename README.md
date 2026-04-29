@@ -12,12 +12,28 @@ Reproducible analysis code for the manuscript:
 
 ## Study overview
 
-This prospective, randomised, single-centre pilot study (DRKS00029176) compared the
-airway microbiota in ICU patients intubated with a standard endotracheal tube (ST,
-n = 22) or the Venner PneuX® tube (VT, n = 25). Samples were collected from five
-airway niches (throat, trachea, upper/lower right lung, lower left lung) at three
-timepoints: intubation (T1), 72–96 h after intubation (T2), and extubation (T3).
-16S rRNA amplicon sequencing (V3–V4) was performed and processed with DADA2.
+## Study overview
+
+Ventilator-associated pneumonia (VAP) is partly driven by microaspiration along 
+the endotracheal tube cuff. Because microbial communities differ between airway 
+compartments, changes in their similarity over time may serve as an indirect 
+readout of microaspiration.
+
+This prospective, randomised, single-centre pilot study (DRKS00029176) compared 
+the Venner PneuX® tube (VT; n = 25), combining cuff-pressure monitoring, 
+subglottic suction, and a biofilm-resistant coating, against a standard 
+endotracheal tube (ST; n = 22) in adults with acute respiratory failure.
+
+Microbial communities from five airway niches (throat, tracheal secretions, 
+right upper, right lower, and left lower lung lobes) were sampled by 16S rRNA 
+sequencing at intubation (T1), after four days of ventilation (T2), and at the 
+tube tip at extubation (T3). Twenty-one patients had complete microbiota datasets 
+(9 ST, 12 VT).
+
+**Key finding:** Standard intubation produced progressive microbial convergence 
+between airway compartments (e.g. TS–Tube Morisita–Horn distance 0.55 → 0.30, 
+p = 0.001); the VT system did not. The findings provide biological plausibility 
+for previously reported VAP reductions with the VT system.
 
 ---
 
