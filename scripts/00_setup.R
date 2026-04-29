@@ -77,7 +77,7 @@ conflicts_prefer(
 # -----------------------------------------------------------------------------
 # 3. Load raw input files
 # -----------------------------------------------------------------------------
-setwd("D:/Dokumente/Heidelberg/Tubomic/Github/tubomic-airway-microbiota")
+setwd("")
 # Adjust this path to wherever your input files live
 data_dir <- "data/"
 
