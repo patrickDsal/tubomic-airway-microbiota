@@ -12,8 +12,6 @@ Reproducible analysis code for the manuscript:
 
 ## Study overview
 
-## Study overview
-
 Ventilator-associated pneumonia (VAP) is partly driven by microaspiration along 
 the endotracheal tube cuff. Because microbial communities differ between airway 
 compartments, changes in their similarity over time may serve as an indirect 
