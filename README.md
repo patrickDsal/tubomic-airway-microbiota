@@ -178,7 +178,8 @@ any figure script.
 
 Patrick Schaal  
 Institute of Medical Microbiology, University of Luebeck, Germany
-University Hospital Schleswig-Holstein, Campus Luebeck
+
+University Hospital Schleswig-Holstein, Campus Luebeck, Germany
 patrick.schaal@uksh.de
 
 ---
