@@ -180,6 +180,7 @@ Patrick Schaal
 Institute of Medical Microbiology, University of Luebeck, Germany
 University Clinic Schleswig-Holstein, Campus Luebeck
 patrick.schaal@uksh.de
+
 ---
 
 ## License
