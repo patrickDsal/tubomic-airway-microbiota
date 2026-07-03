@@ -1,189 +1,131 @@
-# Tubomic — Randomised Pilot Study of Airway Microbiota
+# TUBOMIC — Airway Microbiota Analysis
 
-**Standard vs. Venner PneuX® Endotracheal Tube: Impact on Airway Microbiota**
+**Study:** TUBOMIC — Influence of an endotracheal tube with subglottic suction and continuous cuff pressure measurement on the pulmonary microbiome
 
-Reproducible analysis code for the manuscript:
+**Registration:** DRKS00029176
 
-> *Airway microbial compartmentalisation under mechanical ventilation: a randomized pilot study comparing
->a subglottic-suction endotracheal tube (Venner PneuX) with standard intubation*  
-> Anna Pilkowski et al., Heidelberg University, Medical Faculty Heidelberg, Department of Anesthesiology
+**Institution:** Surgical Intensive Care Unit, Heidelberg University Hospital
 
 ---
 
-## Study overview
+## Overview
 
-Ventilator-associated pneumonia (VAP) is partly driven by microaspiration along 
-the endotracheal tube cuff. Because microbial communities differ between airway 
-compartments, changes in their similarity over time may serve as an indirect 
-readout of microaspiration.
-
-This prospective, randomised, single-centre pilot study (DRKS00029176) compared 
-the Venner PneuX® tube (VT; n = 25), combining cuff-pressure monitoring, 
-subglottic suction, and a biofilm-resistant coating, against a standard 
-endotracheal tube (ST; n = 22) in adults with acute respiratory failure.
-
-Microbial communities from five airway niches (throat, tracheal secretions, 
-right upper, right lower, and left lower lung lobes) were sampled by 16S rRNA 
-sequencing at intubation (T1), after four days of ventilation (T2), and at the 
-tube tip at extubation (T3). Twenty-one patients had complete microbiota datasets 
-(9 ST, 12 VT).
-
-**Key finding:** Standard intubation produced progressive microbial convergence 
-between airway compartments (e.g. TS–Tube Morisita–Horn distance 0.55 → 0.30, 
-p = 0.001); the VT system did not. The findings provide biological plausibility 
-for previously reported VAP reductions with the VT system.
+This repository contains all R analysis scripts for the TUBOMIC pilot randomized controlled trial, comparing the Venner PneuX® endotracheal tube system (VT) with a standard endotracheal tube (ST) in patients with acute respiratory failure. The primary outcome was the change in airway microbiota beta diversity (Morisita–Horn distances) between tube-associated, upper-airway, and lower-airway communities from intubation (T1) to after four days of ventilation (T2).
 
 ---
 
-## Repository structure
+## Repository Structure
 
 ```
 tubomic/
 ├── README.md
 ├── data/
-│   ├── raw/
-│   │   ├── ASV_table.csv               # DADA2 output (ASV × sample counts)
-│   │   ├── taxonomy.txt                # SILVA 138.2 taxonomy assignments
-│   │   └── sample_info.csv             # Sample metadata
-│   └── processed/
-│       └── ps_clean_bio_filtered.rds   # Cleaned phyloseq object (ready to use)
+│   ├── ASV_table.csv               # DADA2 output (ASV × sample counts)
+│   ├── taxonomy.txt                # SILVA 138.2 taxonomy assignments
+│   ├── sample_info.csv             # Sample metadata
+│   └── ps_clean_bio_filtered.rds   # Cleaned phyloseq object (after running 00_setup.R)
 ├── scripts/
-│   ├── 00_setup.R                      # Data loading, decontam, phyloseq → run first
-│   ├── 01_figure2_clinical_scores.R    # Figure 2: APACHE II, SAPS II, SOFA
-│   ├── 02_figure3_alpha_diversity.R    # Figure 3: Shannon, Relative Dominance
-│   ├── 03_figure4_beta_network.R       # Figure 4: Morisita-Horn network graphs
-│   ├── 04_figure5_clustering.R         # Figure 5: Respirotype heatmap
-│   ├── 05_supplementary_S1_S2.R        # S1: QC plots; S2: Sample availability
-│   ├── 05_supplementary_S3_S4.R        # S3/S4: Per-patient cluster transitions
-│   └── 05_supplementary_S5_S6_S7.R    # S5/S6: Beta diversity; S7: ST vs VT at T1
+│   ├── 00_setup.R
+│   ├── 01_prepare_metadata.R
+│   ├── 02_figure2_clinical_scores.R
+│   ├── 03_figure3_alpha_diversity.R
+│   ├── 04_figure4_beta_network.R
+│   ├── 05_figure5_clustering.R
+│   ├── 06_supplementary_S1_S2.R
+│   ├── 07_supplementary_S5_S6.R
+│   ├── 08_supplementary_S3_S7_S8.R
+│   └── 09_reviewer_reanalysis_beta.R
 └── output/
-    └── figures/                        # All figure outputs written here
+    └── figures/
 ```
 
 ---
 
-## How to reproduce the figures
+## Run Order
 
-### Prerequisites
+Scripts must be run **in numerical order**. Each script depends on outputs from previous scripts.
 
-R ≥ 4.4.2. Install required packages by running:
+```
+00_setup.R                    ← Run first. Produces ps_clean_bio_filtered.rds
+01_prepare_metadata.R         ← Produces metafile_master.csv, hclust_ward2.rds
+02_figure2_clinical_scores.R
+03_figure3_alpha_diversity.R
+04_figure4_beta_network.R     ← Produces niche_network_full.rds, niche_network_all.rds
+05_figure5_clustering.R
+06_supplementary_S1_S2.R
+07_supplementary_S5_S6.R
+08_supplementary_S3_S7_S8.R  ← Requires outputs from 04
+09_reviewer_reanalysis_beta.R ← Requires outputs from 04
+```
+
+---
+
+## Getting Started
+
+1. Clone this repository
+2. Open R and set your working directory to the repository root:
+   ```r
+   setwd("path/to/tubomic")
+   ```
+3. Install required packages (see below)
+4. Run scripts in order starting from `00_setup.R`
+
+---
+
+## Required R Packages
 
 ```r
 install.packages(c(
-  "tidyverse", "magrittr", "phyloseq", "vegan", "microeco", "file2meco",
-  "microbiome", "decontam", "lmerTest", "patchwork", "ggtext", "svglite",
-  "ggdist", "ggforce", "ggrepel", "ggraph", "igraph", "ggdendro", "dendextend",
-  "RColorBrewer", "colorspace", "scales", "rcompanion", "effsize",
-  "rstatix", "cluster", "fpc", "conflicted"
+  "tidyverse", "magrittr", "vegan", "lme4", "lmerTest",
+  "rcompanion", "effsize", "RColorBrewer", "patchwork",
+  "ggraph", "igraph", "ggrepel", "ggdist", "dendextend",
+  "ggdendro", "colorspace", "cluster", "fpc", "svglite",
+  "flextable", "officer", "conflicted"
 ))
+
+# Bioconductor packages
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install(c("phyloseq", "decontam"))
+
+# GitHub packages
+remotes::install_github("ChiLiubio/microeco")
+remotes::install_github("jbisanz/file2meco")
 ```
-
-> **Note:** `microeco` and `file2meco` are available on CRAN.
-> `phyloseq` is available via Bioconductor:
-> ```r
-> BiocManager::install("phyloseq")
-> ```
-
-### Option A — Start from raw data (full pipeline)
-
-Run scripts in order from the `scripts/` directory:
-
-```r
-source("scripts/00_setup.R")               # ~5 min; produces ps_clean_bio_filtered.rds
-source("scripts/01_figure2_clinical_scores.R")
-source("scripts/02_figure3_alpha_diversity.R")
-source("scripts/03_figure4_beta_network.R")
-source("scripts/04_figure5_clustering.R")  # ~10 min; produces metafile_cluster.csv
-source("scripts/05_supplementary_S1_S2.R")
-source("scripts/05_supplementary_S3_S4.R")
-source("scripts/05_supplementary_S5_S6_S7.R")
-```
-
-### Option B — Start from the cleaned phyloseq object
-
-If you want to skip preprocessing and jump straight to a specific figure,
-load the cleaned phyloseq object directly:
-
-```r
-ps <- readRDS("data/processed/ps_clean_bio_filtered.rds")
-```
-
-Then run any figure script individually. Each script documents its own inputs
-at the top.
 
 ---
 
-## Data
+## Figure Index
 
-| File | Description |
-|------|-------------|
-| `data/raw/ASV_table.csv` | Raw ASV count matrix (ASVs × samples), DADA2 output |
-| `data/raw/taxonomy.txt` | Taxonomic assignments against SILVA 138.2 |
-| `data/raw/sample_info.csv` | Sample metadata (patient ID, timepoint, niche, method, DNA concentration) |
-| `data/processed/ps_clean_bio_filtered.rds` | Cleaned phyloseq object after decontamination and read-depth filtering (≥ 2,300 reads) |
-
-**Patient privacy:** `sample_info.csv` contains only anonymised patient codes
-(e.g., `P01`). No direct identifiers (names, dates of birth, admission dates)
-are included.
-
----
-
-## Bioinformatic processing summary
-
-| Step | Tool / parameter |
-|------|-----------------|
-| Primer trimming | Cutadapt 4.4, linked adapters, min length 200 bp |
-| Quality filtering | DADA2 1.34: truncLen = (220, 200), maxEE = (2, 2) |
-| Denoising | DADA2, pool = FALSE (per-sample) |
-| Chimera removal | removeBimeraDenovo, method = "consensus" |
-| Taxonomy | SILVA 138.2, assignTaxonomy(), minBoot = 50 |
-| Decontamination | decontam 1.26, method = "combined", threshold = 0.1 |
-| Read-depth filter | ≥ 2,300 reads per sample |
-| Diversity metric | Morisita-Horn (vegan::vegdist, method = "horn") |
-| Clustering | Ward.D2 hierarchical, k = 30, silhouette-optimised |
+| Figure | Description | Script |
+|--------|-------------|--------|
+| Figure 2 | Clinical severity scores (APACHE II, SAPS II, SOFA) | 02 |
+| Figure 3 | Alpha diversity: Shannon index and relative dominance | 03 |
+| Figure 4 | Beta diversity network graphs | 04 |
+| Figure 5 | Hierarchical clustering heatmap (Respirotypes) | 05 |
+| Figure S1 | QC: read depth and mock community validation | 06 |
+| Figure S2 | Sample availability across patients and niches | 06 |
+| Figure S3 | Baseline (T1) niche-pair distance comparison ST vs VT | 08 |
+| Figure S4 | Between-group delta distance comparison (reviewer analysis) | 09 |
+| Figure S5 | Respirotype cluster transitions — Standard group | 07 |
+| Figure S6 | Respirotype cluster transitions — Venner group | 07 |
+| Figure S7 | Paired niche distances T1 vs T2 — Standard group | 08 |
+| Figure S8 | Paired niche distances T1 vs T2 — Venner group | 08 |
 
 ---
 
-## Figure index
+## Data Availability
 
-| Figure | Script | Description |
-|--------|--------|-------------|
-| Figure 2 | `01_figure2_clinical_scores.R` | APACHE II, SAPS II, SOFA over T1–T3 |
-| Figure 3 | `02_figure3_alpha_diversity.R` | Shannon diversity and relative dominance |
-| Figure 4 | `03_figure4_beta_network.R` | Morisita-Horn niche similarity networks |
-| Figure 5 | `04_figure5_clustering.R` | Respirotype heatmap (k = 30 clusters) |
-| Figure S1 | `05_supplementary_S1_S2.R` | Read-depth QC and mock community validation |
-| Figure S2 | `05_supplementary_S1_S2.R` | Sample availability across patients and niches |
-| Figure S3 | `05_supplementary_S3_S4.R` | Cluster transitions T1 → T2, Standard group |
-| Figure S4 | `05_supplementary_S3_S4.R` | Cluster transitions T1 → T2, Venner group |
-| Figure S5 | `05_supplementary_S5_S6_S7.R` | Paired niche distances T1 vs T2, Standard |
-| Figure S6 | `05_supplementary_S5_S6_S7.R` | Paired niche distances T1 vs T2, Venner |
-| Figure S7 | `05_supplementary_S5_S6_S7.R` | Standard vs Venner niche distances at T1 |
+Raw sequencing data are deposited at NCBI SRA under accession number [XXXXX].
 
 ---
 
-## Session info
+## Citation
 
-```
-R version 4.4.2
-Platform: x86_64-pc-linux-gnu
-```
-
-Full session info can be reproduced by running `sessionInfo()` after sourcing
-any figure script.
-
----
-
-## Contact
-
-Patrick Schaal    
-Institute of Medical Microbiology, University of Luebeck, Germany  
-University Hospital Schleswig-Holstein, Campus Luebeck, Germany  
-patrick.schaal@uksh.de
+[Citation will be added upon publication]
 
 ---
 
 ## License
 
-Code: MIT License  
-Data: available for research use; please cite the manuscript if used.
+MIT License. See LICENSE for details.
